@@ -1,4 +1,4 @@
-import { generateConfirmationCode } from '../includes/helpers.js';
+import { generateConfirmationCode, getMonthAbbreviation, yenToUsd } from '../includes/helpers.js';
 import { getDb as db } from './db-in-file.js';
 
 // ROUTE MODEL FUNCTIONS
@@ -27,6 +27,22 @@ export const getRoutesByRegion = async (region) => {
 
 export const getRoutesBySeason = async (season) => {
     return db().routes.filter(route => route.bestSeason.toLowerCase() == season.toLowerCase());
+};
+
+// Filter routes by region, season, both, or neither
+export const getFilteredRoutes = async (region, season) => {
+    let routes = db().routes;
+
+    // Treat empty or 'all' as "no filter"
+    if (region && region.toLowerCase() !== 'all') {
+        routes = routes.filter(route => route.region.toLowerCase() === region.toLowerCase());
+    }
+
+    if (season && season.toLowerCase() !== 'all') {
+        routes = routes.filter(route => route.bestSeason.toLowerCase() === season.toLowerCase());
+    }
+
+    return routes;
 };
 
 export const getRoutesByMonth = async (month) => {
@@ -147,6 +163,8 @@ export const getCompleteRouteDetails = async (routeId) => {
 
     return {
         ...route,
+        // Convert month numbers to abbreviations for display (doesn't modify stored data)
+        operatingMonths: route.operatingMonths.map(getMonthAbbreviation),
         startStationDetails: startStation,
         endStationDetails: endStation,
         schedules: routeSchedules
@@ -169,7 +187,8 @@ export const getTicketOptionsForRoute = async (routeId) => {
     return db().ticketClasses.map(tc => ({
         class: tc.class,
         name: tc.name,
-        price: route.distance * tc.pricePerKm,
+        // Database stores Yen; convert to USD and round to cents for display
+        price: Number(yenToUsd(route.distance * tc.pricePerKm).toFixed(2)),
         amenities: tc.amenities,
         description: tc.description
     }));

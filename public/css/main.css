@@ -15,3 +15,76 @@
 @import 'components/columns-grid.css' layer(components);
 
 @import 'layout/all-layouts.css' layer(layout);
+
+/* Routes page filters: region centered on the left, season centered on the right */
+#filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+#filters .filter-group {
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Print styles: clean, single-page confirmation printout */
+@media print {
+    /* Hide site chrome and non-essential sections (hide, don't shrink) */
+    body > header,
+    body > footer,
+    .confirmation-actions,
+    .next-steps,
+    .success-icon {
+        display: none !important;
+    }
+
+    /* Dark theme wastes ink: switch to white background and black text */
+    html,
+    body,
+    main,
+    .confirmation-page,
+    .confirmation-page * {
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: none !important;
+    }
+
+    /* Remove extra outer spacing so content fits on one page */
+    body,
+    main,
+    .confirmation-page {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .confirmation-header,
+    .booking-details,
+    .passengers-info,
+    .important-info {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    /* Keep cards and sections from splitting across pages */
+    .detail-card,
+    .passenger-info-card,
+    section {
+        break-inside: avoid;
+    }
+
+    /* Simple borders so cards stay readable without color */
+    .detail-card,
+    .passenger-info-card {
+        border: 1px solid #999 !important;
+    }
+
+    @page {
+        margin: 0.5in;
+    }
+}
